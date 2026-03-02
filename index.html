@@ -636,7 +636,8 @@ function refreshUI(){
 }
 
 // ── Auth ──
-let _authReady = false;
+let _firstAuth = true;
+
 onAuthStateChanged(auth, async user => {
   if(user){
     CU = user;
@@ -645,29 +646,26 @@ onAuthStateChanged(auth, async user => {
       try{ await setDoc(doc(db,'users',user.uid),{email:user.email,lastLogin:serverTimestamp()},{merge:true}); }catch(e){}
     }
     renderNav();
-    if(!_authReady){
-      const savedPage = sessionStorage.getItem('dnbd_page');
-      if(IA){
-        showPage('admin'); startAdminOrders();
-      } else if(savedPage === 'dashboard'){
-        showPage('dashboard'); loadMyOrders();
-      } else {
-        showPage('home'); loadMyOrders();
-      }
+    if(IA){
+      showPage('admin');
+      startAdminOrders();
     } else {
-      if(IA) startAdminOrders();
-      else loadMyOrders();
+      const saved = sessionStorage.getItem('dnbd_page');
+      const validPages = ['home','dashboard'];
+      if(_firstAuth && saved && validPages.includes(saved)){
+        showPage(saved);
+      } else {
+        showPage('home');
+      }
+      loadMyOrders();
     }
   } else {
     CU=null; IA=false;
     renderNav();
-    if(!_authReady){
-      const savedPage = sessionStorage.getItem('dnbd_page');
-      if(savedPage==='login'||savedPage==='register') showPage(savedPage);
-      else showPage('home');
-    }
+    showPage('home');
+    sessionStorage.removeItem('dnbd_page');
   }
-  _authReady = true;
+  _firstAuth = false;
 });
 
 function renderNav(){
@@ -700,13 +698,14 @@ window.doLogin = async () => {
   try{
     await signInWithEmailAndPassword(auth,e,p);
     toast('লগইন সফল!','ok2');
+    showPage('home');
   }catch(err){
     let m='লগইন ব্যর্থ!';
     if(err.code==='auth/invalid-credential'||err.code==='auth/wrong-password') m='ইমেইল বা পাসওয়ার্ড ভুল!';
     if(err.code==='auth/user-not-found') m='ইমেইল পাওয়া যায়নি!';
     toast(m,'err');
+    btn.textContent='লগইন করুন →'; btn.disabled=false;
   }
-  btn.textContent='লগইন করুন →'; btn.disabled=false;
 };
 
 window.doRegister = async () => {
@@ -718,17 +717,17 @@ window.doRegister = async () => {
     const c=await createUserWithEmailAndPassword(auth,e,p);
     await setDoc(doc(db,'users',c.user.uid),{name:n,email:e,phone:ph,createdAt:serverTimestamp()});
     toast('রেজিস্ট্রেশন সফল!','ok2');
+    showPage('home');
   }catch(err){
     let m='রেজিস্ট্রেশন ব্যর্থ!';
     if(err.code==='auth/email-already-in-use') m='এই ইমেইল আগেই ব্যবহৃত!';
     toast(m,'err');
+    btn.textContent='অ্যাকাউন্ট তৈরি করুন →'; btn.disabled=false;
   }
-  btn.textContent='অ্যাকাউন্ট তৈরি করুন →'; btn.disabled=false;
 };
 
 window.doLogout = async () => {
   await signOut(auth);
-  sessionStorage.removeItem('dnbd_page');
   toast('লগআউট হয়েছে','ok2');
   showPage('home');
 };
