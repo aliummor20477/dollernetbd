@@ -229,6 +229,7 @@ input:checked+.tsl:before{transform:translateX(17px);}
 <!-- LOGIN -->
 <div class="page" id="page-login">
   <div class="auth-wrap"><div class="auth-box">
+    <button onclick="showPage('home')" style="background:none;border:none;color:var(--muted2);cursor:pointer;font-size:13px;margin-bottom:16px;display:flex;align-items:center;gap:5px;padding:0;">← হোমে ফিরুন</button>
     <div class="auth-title">Dollar <span style="color:var(--gold)">Net</span> BD</div>
     <div class="auth-sub">লগইন করুন</div>
     <div class="tabrow">
@@ -245,6 +246,7 @@ input:checked+.tsl:before{transform:translateX(17px);}
 <!-- REGISTER -->
 <div class="page" id="page-register">
   <div class="auth-wrap"><div class="auth-box">
+    <button onclick="showPage('home')" style="background:none;border:none;color:var(--muted2);cursor:pointer;font-size:13px;margin-bottom:16px;display:flex;align-items:center;gap:5px;padding:0;">← হোমে ফিরুন</button>
     <div class="auth-title">Dollar <span style="color:var(--gold)">Net</span> BD</div>
     <div class="auth-sub">নতুন অ্যাকাউন্ট তৈরি করুন</div>
     <div class="tabrow">
@@ -325,7 +327,10 @@ input:checked+.tsl:before{transform:translateX(17px);}
 <!-- DASHBOARD -->
 <div class="page" id="page-dashboard">
   <div class="dash">
-    <h2 id="dg">হ্যালো! 👋</h2>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+      <h2 id="dg">হ্যালো! 👋</h2>
+      <button onclick="showPage('home')" style="background:var(--card2);border:1px solid var(--border);color:var(--muted2);padding:7px 14px;border-radius:8px;cursor:pointer;font-size:13px;font-family:'Inter',sans-serif;">← হোম</button>
+    </div>
     <div class="dsub">আপনার অ্যাকাউন্ট</div>
     <div class="dstats">
       <div class="dstat"><div class="dl">মোট কেনা</div><div class="dv" style="color:var(--green)" id="st-buy">$0</div></div>
@@ -631,6 +636,7 @@ function refreshUI(){
 }
 
 // ── Auth ──
+let _authReady = false;
 onAuthStateChanged(auth, async user => {
   if(user){
     CU = user;
@@ -639,12 +645,29 @@ onAuthStateChanged(auth, async user => {
       try{ await setDoc(doc(db,'users',user.uid),{email:user.email,lastLogin:serverTimestamp()},{merge:true}); }catch(e){}
     }
     renderNav();
-    if(IA){ showPage('admin'); startAdminOrders(); }
-    else  { showPage('home');  loadMyOrders(); }
+    if(!_authReady){
+      const savedPage = sessionStorage.getItem('dnbd_page');
+      if(IA){
+        showPage('admin'); startAdminOrders();
+      } else if(savedPage === 'dashboard'){
+        showPage('dashboard'); loadMyOrders();
+      } else {
+        showPage('home'); loadMyOrders();
+      }
+    } else {
+      if(IA) startAdminOrders();
+      else loadMyOrders();
+    }
   } else {
     CU=null; IA=false;
-    renderNav(); showPage('home');
+    renderNav();
+    if(!_authReady){
+      const savedPage = sessionStorage.getItem('dnbd_page');
+      if(savedPage==='login'||savedPage==='register') showPage(savedPage);
+      else showPage('home');
+    }
   }
+  _authReady = true;
 });
 
 function renderNav(){
@@ -666,6 +689,7 @@ function renderNav(){
 window.showPage = p => {
   document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
   G('page-'+p).classList.add('active');
+  sessionStorage.setItem('dnbd_page', p);
   renderNav();
 };
 
@@ -704,6 +728,7 @@ window.doRegister = async () => {
 
 window.doLogout = async () => {
   await signOut(auth);
+  sessionStorage.removeItem('dnbd_page');
   toast('লগআউট হয়েছে','ok2');
   showPage('home');
 };
