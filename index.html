@@ -20,7 +20,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;height:62px;display:flex;ali
 .n-btn:hover{border-color:var(--gold);color:var(--gold);}
 .n-gold{background:var(--gold);border:none;color:#09090f;padding:7px 14px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;font-family:'Inter',sans-serif;}
 /* PAGE */
-.page{display:none;min-height:100vh;padding-top:62px;position:relative;z-index:1;}
+.page{display:none;padding-top:62px;position:relative;z-index:1;}
 .page.active{display:flex;flex-direction:column;}
 /* AUTH */
 .auth-wrap{flex:1;display:flex;align-items:center;justify-content:center;padding:40px 20px;}
@@ -210,6 +210,11 @@ input:checked+.tsl:before{transform:translateX(17px);}
 </style>
 </head>
 <body>
+<div id="appLoader" style="position:fixed;inset:0;background:#09090f;z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;">
+  <div style="font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;color:#f0f0f8;">Dollar <span style="color:#F5C518">Net</span> BD</div>
+  <div style="width:34px;height:34px;border:3px solid rgba(255,255,255,0.07);border-top-color:#F5C518;border-radius:50%;animation:spin .7s linear infinite;"></div>
+</div>
+<style>@keyframes spin{to{transform:rotate(360deg);}}</style>
 
 <!-- NAV -->
 <nav>
@@ -229,7 +234,7 @@ input:checked+.tsl:before{transform:translateX(17px);}
 <!-- LOGIN -->
 <div class="page" id="page-login">
   <div class="auth-wrap"><div class="auth-box">
-    <button onclick="showPage('home')" style="background:none;border:none;color:var(--muted2);cursor:pointer;font-size:13px;margin-bottom:16px;display:flex;align-items:center;gap:5px;padding:0;">← হোমে ফিরুন</button>
+    <button onclick="showPage('home')" style="background:none;border:none;color:#5a5a72;cursor:pointer;font-size:13px;margin-bottom:16px;display:flex;align-items:center;gap:5px;padding:0;">← হোমে ফিরুন</button>
     <div class="auth-title">Dollar <span style="color:var(--gold)">Net</span> BD</div>
     <div class="auth-sub">লগইন করুন</div>
     <div class="tabrow">
@@ -246,7 +251,7 @@ input:checked+.tsl:before{transform:translateX(17px);}
 <!-- REGISTER -->
 <div class="page" id="page-register">
   <div class="auth-wrap"><div class="auth-box">
-    <button onclick="showPage('home')" style="background:none;border:none;color:var(--muted2);cursor:pointer;font-size:13px;margin-bottom:16px;display:flex;align-items:center;gap:5px;padding:0;">← হোমে ফিরুন</button>
+    <button onclick="showPage('home')" style="background:none;border:none;color:#5a5a72;cursor:pointer;font-size:13px;margin-bottom:16px;display:flex;align-items:center;gap:5px;padding:0;">← হোমে ফিরুন</button>
     <div class="auth-title">Dollar <span style="color:var(--gold)">Net</span> BD</div>
     <div class="auth-sub">নতুন অ্যাকাউন্ট তৈরি করুন</div>
     <div class="tabrow">
@@ -281,6 +286,13 @@ input:checked+.tsl:before{transform:translateX(17px);}
       <div class="ti"><span class="p">Binance Buy</span><span class="v">৳112</span><span class="up">▲</span></div>
       <div class="ti"><span class="p">RedotPay Buy</span><span class="v">৳126</span><span class="up">▲</span></div>
       <div class="ti"><span class="p">Neteller Buy</span><span class="v">৳127</span><span class="up">▲</span></div>
+    </div>
+  </div>
+  <!-- NOTICE BAR -->
+  <div id="noticeBar" style="display:none;background:rgba(245,197,24,0.07);border-bottom:1px solid rgba(245,197,24,0.15);overflow:hidden;">
+    <div style="display:flex;align-items:center;height:34px;">
+      <div style="flex-shrink:0;padding:0 14px;font-size:11px;font-weight:700;color:#F5C518;background:rgba(245,197,24,0.12);border-right:1px solid rgba(245,197,24,0.2);height:100%;display:flex;align-items:center;white-space:nowrap;">📢 নোটিশ</div>
+      <div style="overflow:hidden;flex:1;"><div id="noticeTick" style="white-space:nowrap;animation:tick 25s linear infinite;padding:0 24px;font-size:12px;color:#F5C518;font-weight:500;display:inline-block;"></div></div>
     </div>
   </div>
   <div class="hero">
@@ -329,7 +341,7 @@ input:checked+.tsl:before{transform:translateX(17px);}
   <div class="dash">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
       <h2 id="dg">হ্যালো! 👋</h2>
-      <button onclick="showPage('home')" style="background:var(--card2);border:1px solid var(--border);color:var(--muted2);padding:7px 14px;border-radius:8px;cursor:pointer;font-size:13px;font-family:'Inter',sans-serif;">← হোম</button>
+      <button onclick="showPage('home')" style="background:#1a1a26;border:1px solid rgba(255,255,255,0.07);color:#8888a0;padding:7px 14px;border-radius:8px;cursor:pointer;font-size:13px;font-family:Inter,sans-serif;">← হোম</button>
     </div>
     <div class="dsub">আপনার অ্যাকাউন্ট</div>
     <div class="dstats">
@@ -358,6 +370,7 @@ input:checked+.tsl:before{transform:translateX(17px);}
       <button class="atab" onclick="aTab('rates',this)">💱 রেট</button>
       <button class="atab" onclick="aTab('accounts',this)">📧 একাউন্ট</button>
       <button class="atab" onclick="aTab('avail',this)">🔀 স্ট্যাটাস</button>
+      <button class="atab" onclick="aTab('notice',this)">📢 নোটিশ</button>
     </div>
     <div class="atc on" id="atc-orders">
       <div class="ot">
@@ -434,6 +447,19 @@ input:checked+.tsl:before{transform:translateX(17px);}
     </div>
   </div>
 </div>
+
+    <div class="atc" id="atc-notice">
+      <div class="sc" style="max-width:560px;">
+        <h4>📢 নোটিশ ম্যানেজমেন্ট</h4>
+        <div class="sr3" style="margin-bottom:14px;"><label>নোটিশ চালু</label><label class="tog"><input type="checkbox" id="notice-on"><span class="tsl"></span></label></div>
+        <div style="margin-bottom:14px;">
+          <label style="font-size:12px;color:#8888a0;display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px;">নোটিশ টেক্সট</label>
+          <textarea id="notice-text" placeholder="নোটিশ লিখুন..." style="width:100%;padding:10px 12px;background:#1a1a26;border:1px solid rgba(255,255,255,0.07);border-radius:8px;color:#f0f0f8;font-size:14px;font-family:Inter,sans-serif;outline:none;resize:vertical;min-height:80px;"></textarea>
+        </div>
+        <button class="svbtn" onclick="saveNotice(event)">সেভ করুন ✓</button>
+        <div style="margin-top:10px;font-size:11px;color:#5a5a72;">নোটিশ চালু থাকলে হোম পেজে রেট টিকারের নিচে স্ক্রল করে দেখাবে।</div>
+      </div>
+    </div>
 
 <!-- MODAL -->
 <div class="overlay" id="ov">
@@ -582,6 +608,16 @@ onSnapshot(doc(db,'settings','config'), snap => {
   CFG.as.binance    = d.avail_sell_binance ?? true;
   CFG.as.redotpay   = d.avail_sell_redotpay?? true;
   CFG.as.neteller   = d.avail_sell_neteller?? true;
+  // Notice
+  const noticeOn = d.notice_on ?? false;
+  const noticeText = d.notice_text || '';
+  const _nb = G('noticeBar'), _nt = G('noticeTick');
+  if(_nb && _nt){
+    if(noticeOn && noticeText){ _nt.textContent = noticeText + '   •   ' + noticeText; _nb.style.display='block'; }
+    else { _nb.style.display='none'; }
+  }
+  if(G('notice-on')) G('notice-on').checked = noticeOn;
+  if(G('notice-text')) G('notice-text').value = noticeText;
   refreshUI();
 });
 
@@ -636,11 +672,10 @@ function refreshUI(){
 }
 
 // ── Navigation ──
-// showPage: পেজ দেখায় এবং sessionStorage এ save করে
 window.showPage = p => {
   document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
   G('page-'+p).classList.add('active');
-  sessionStorage.setItem('cur', p);
+  sessionStorage.setItem('cur',p);
   renderNav();
 };
 
@@ -661,9 +696,8 @@ function renderNav(){
 }
 
 // ── Auth ──
-// _navDone: onAuthStateChanged একবারই page redirect করবে (refresh এ)
-// পরে user নিজে navigate করলে আর redirect হবে না
 let _navDone = false;
+function _hideLoader(){ const l=G('appLoader'); if(l) l.style.display='none'; }
 
 onAuthStateChanged(auth, async user => {
   if(user){
@@ -674,14 +708,10 @@ onAuthStateChanged(auth, async user => {
     }
     renderNav();
     if(!_navDone){
-      // প্রথম লোড / refresh — sessionStorage থেকে পেজ রিস্টোর
-      if(IA){
-        showPage('admin');
-        startAdminOrders();
-      } else {
+      if(IA){ showPage('admin'); startAdminOrders(); }
+      else {
         const saved = sessionStorage.getItem('cur');
-        // dashboard বা home restore করো, অন্য কিছু হলে home
-        showPage(saved === 'dashboard' ? 'dashboard' : 'home');
+        showPage(saved==='dashboard'?'dashboard':'home');
         loadMyOrders();
       }
       _navDone = true;
@@ -689,11 +719,9 @@ onAuthStateChanged(auth, async user => {
   } else {
     CU=null; IA=false;
     renderNav();
-    if(!_navDone){
-      showPage('home');
-      _navDone = true;
-    }
+    if(!_navDone){ showPage('home'); _navDone=true; }
   }
+  _hideLoader();
 });
 
 window.doLogin = async () => {
@@ -703,8 +731,7 @@ window.doLogin = async () => {
   try{
     await signInWithEmailAndPassword(auth,e,p);
     toast('লগইন সফল!','ok2');
-    showPage('home');
-    loadMyOrders();
+    showPage('home'); loadMyOrders();
   }catch(err){
     let m='লগইন ব্যর্থ!';
     if(err.code==='auth/invalid-credential'||err.code==='auth/wrong-password') m='ইমেইল বা পাসওয়ার্ড ভুল!';
@@ -723,8 +750,7 @@ window.doRegister = async () => {
     const c=await createUserWithEmailAndPassword(auth,e,p);
     await setDoc(doc(db,'users',c.user.uid),{name:n,email:e,phone:ph,createdAt:serverTimestamp()});
     toast('রেজিস্ট্রেশন সফল!','ok2');
-    showPage('home');
-    loadMyOrders();
+    showPage('home'); loadMyOrders();
   }catch(err){
     let m='রেজিস্ট্রেশন ব্যর্থ!';
     if(err.code==='auth/email-already-in-use') m='এই ইমেইল আগেই ব্যবহৃত!';
@@ -738,8 +764,7 @@ window.doLogout = async () => {
   _navDone = false;
   await signOut(auth);
   toast('লগআউট হয়েছে','ok2');
-  showPage('home');
-  _navDone = true;
+  showPage('home'); _navDone=true;
 };
 
 // ── Modal ──
@@ -976,6 +1001,30 @@ window.saveAvail = async e => {
       avail_sell_neteller:G('as-nt').checked,
     });
     toast('স্ট্যাটাস আপডেট হয়েছে!','ok2');
+  }catch(er){toast('সেভ ব্যর্থ!','err');}
+  btn.textContent='সেভ করুন ✓'; btn.disabled=false;
+};
+
+window.saveNotice = async e => {
+  const btn=e.target; btn.textContent='সেভ হচ্ছে...'; btn.disabled=true;
+  try{
+    await updateDoc(doc(db,'settings','config'),{
+      notice_on:   G('notice-on').checked,
+      notice_text: G('notice-text').value.trim(),
+    });
+    toast('নোটিশ আপডেট হয়েছে!','ok2');
+  }catch(er){toast('সেভ ব্যর্থ!','err');}
+  btn.textContent='সেভ করুন ✓'; btn.disabled=false;
+};
+
+window.saveNotice = async e => {
+  const btn=e.target; btn.textContent='সেভ হচ্ছে...'; btn.disabled=true;
+  try{
+    await updateDoc(doc(db,'settings','config'),{
+      notice_on:   document.getElementById('notice-on').checked,
+      notice_text: document.getElementById('notice-text').value.trim(),
+    });
+    toast('নোটিশ আপডেট হয়েছে!','ok2');
   }catch(er){toast('সেভ ব্যর্থ!','err');}
   btn.textContent='সেভ করুন ✓'; btn.disabled=false;
 };
