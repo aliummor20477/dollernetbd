@@ -635,38 +635,14 @@ function refreshUI(){
   }
 }
 
-// ── Auth ──
-let _firstAuth = true;
-
-onAuthStateChanged(auth, async user => {
-  if(user){
-    CU = user;
-    IA = (user.uid === ADMIN);
-    if(!IA){
-      try{ await setDoc(doc(db,'users',user.uid),{email:user.email,lastLogin:serverTimestamp()},{merge:true}); }catch(e){}
-    }
-    renderNav();
-    if(IA){
-      showPage('admin');
-      startAdminOrders();
-    } else {
-      const saved = sessionStorage.getItem('dnbd_page');
-      const validPages = ['home','dashboard'];
-      if(_firstAuth && saved && validPages.includes(saved)){
-        showPage(saved);
-      } else {
-        showPage('home');
-      }
-      loadMyOrders();
-    }
-  } else {
-    CU=null; IA=false;
-    renderNav();
-    showPage('home');
-    sessionStorage.removeItem('dnbd_page');
-  }
-  _firstAuth = false;
-});
+// ── Navigation ──
+// showPage: পেজ দেখায় এবং sessionStorage এ save করে
+window.showPage = p => {
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+  G('page-'+p).classList.add('active');
+  sessionStorage.setItem('cur', p);
+  renderNav();
+};
 
 function renderNav(){
   const nb = G('navBtns');
@@ -684,12 +660,41 @@ function renderNav(){
   }
 }
 
-window.showPage = p => {
-  document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
-  G('page-'+p).classList.add('active');
-  sessionStorage.setItem('dnbd_page', p);
-  renderNav();
-};
+// ── Auth ──
+// _navDone: onAuthStateChanged একবারই page redirect করবে (refresh এ)
+// পরে user নিজে navigate করলে আর redirect হবে না
+let _navDone = false;
+
+onAuthStateChanged(auth, async user => {
+  if(user){
+    CU = user;
+    IA = (user.uid === ADMIN);
+    if(!IA){
+      try{ await setDoc(doc(db,'users',user.uid),{email:user.email,lastLogin:serverTimestamp()},{merge:true}); }catch(e){}
+    }
+    renderNav();
+    if(!_navDone){
+      // প্রথম লোড / refresh — sessionStorage থেকে পেজ রিস্টোর
+      if(IA){
+        showPage('admin');
+        startAdminOrders();
+      } else {
+        const saved = sessionStorage.getItem('cur');
+        // dashboard বা home restore করো, অন্য কিছু হলে home
+        showPage(saved === 'dashboard' ? 'dashboard' : 'home');
+        loadMyOrders();
+      }
+      _navDone = true;
+    }
+  } else {
+    CU=null; IA=false;
+    renderNav();
+    if(!_navDone){
+      showPage('home');
+      _navDone = true;
+    }
+  }
+});
 
 window.doLogin = async () => {
   const e=G('li-e').value.trim(), p=G('li-p').value;
@@ -699,6 +704,7 @@ window.doLogin = async () => {
     await signInWithEmailAndPassword(auth,e,p);
     toast('লগইন সফল!','ok2');
     showPage('home');
+    loadMyOrders();
   }catch(err){
     let m='লগইন ব্যর্থ!';
     if(err.code==='auth/invalid-credential'||err.code==='auth/wrong-password') m='ইমেইল বা পাসওয়ার্ড ভুল!';
@@ -718,6 +724,7 @@ window.doRegister = async () => {
     await setDoc(doc(db,'users',c.user.uid),{name:n,email:e,phone:ph,createdAt:serverTimestamp()});
     toast('রেজিস্ট্রেশন সফল!','ok2');
     showPage('home');
+    loadMyOrders();
   }catch(err){
     let m='রেজিস্ট্রেশন ব্যর্থ!';
     if(err.code==='auth/email-already-in-use') m='এই ইমেইল আগেই ব্যবহৃত!';
@@ -727,9 +734,12 @@ window.doRegister = async () => {
 };
 
 window.doLogout = async () => {
+  sessionStorage.removeItem('cur');
+  _navDone = false;
   await signOut(auth);
   toast('লগআউট হয়েছে','ok2');
   showPage('home');
+  _navDone = true;
 };
 
 // ── Modal ──
